@@ -1,0 +1,28 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from tqdm import tqdm_notebook
+
+if __name__ == "__main__":
+  URL_LIST=[]
+  for i in tqdm_notebook(range(0, 70000)): 
+      URL = "https://www.wanted.co.kr/wd/" + str(i)
+      URL_LIST.append(URL)
+
+
+
+
+  total = pd.DataFrame(columns = ['주소번호','직무', '유사직무','주요업무','자격요건','우대사항'])
+  for i in tqdm_notebook(range(1,70000)):
+      try:
+          URL = URL_LIST[i]
+          response = requests.get(URL)
+          html = response.text
+          soup = BeautifulSoup(html, 'lxml')
+          soup = str(soup)
+          if ('\\n주요업무\\n' in soup) and ('\\n자격요건\\n' in soup) and ('\\n우대사항\\n' in soup) and ('\\n혜택 및 복지\\n' in soup):
+              total.loc[len(total)] = [i, soup[soup.find('"position":"') + 12 : soup.find('"reward":') - 2],soup[soup.find('"sub_categories":') + 18 : soup.find('"position":"') - 2],soup[soup.find('\\n주요업무\\n') + 10 : soup.find('\\n자격요건\\n') - 2],soup[soup.find('\\n자격요건\\n') + 10 : soup.find('\\n우대사항\\n') - 2],soup[soup.find('\\n우대사항\\n') + 10 : soup.find('\\n혜택 및 복지\\n') - 2]]
+      except:
+          pass
+
+  total.to_excel('real_data.xlsx')
