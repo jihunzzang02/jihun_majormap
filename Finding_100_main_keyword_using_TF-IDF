@@ -1,0 +1,91 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+import operator
+import pandas as pd
+import re
+from konlpy.tag import Okt
+okt=Okt()
+import warnings
+warnings.simplefilter("ignore")
+
+
+
+
+#데이터 알맞은 형태로 전처리
+def preprocess(documents):      
+# 저장된 데이터에서 필요한건 '학교명', '학과명', '학과소개글', '배우는과목소개글'
+# 따라서 얘네 4명만 살리고 학교명과 학과명은 하나로 합친 데이터정제 코드 
+    documents = documents.drop(['attribute','college'],axis=1)
+    documents['name']=documents['univname']+' '+documents['name']
+    documents = documents.drop(['univname'],axis=1)
+    documents = documents.dropna(axis=0)
+    return documents
+
+
+
+
+
+# 한글과 띄어쓰기를 제외한 모든 부분을 제거, 명사만 남김
+def trans_hangul(documents):
+    text_list = list(documents['text_intr']+documents['text_lect'])
+    hangul = re.compile('[^ ㄱ-ㅣ가-힣]+')
+    for i in range(len(text_list)):   
+        text_list[i] = hangul.sub('', text_list[i])
+        text_list[i]=(' '.join(okt.nouns(text_list[i])))
+        
+    return text_list
+
+
+
+
+
+# 방대한 자료를 벡터화하는 함수(다시말해 tfidf 훈련시키는 함수)
+def training_tfidf(documents):
+    global text_list_vec,word_index
+    
+    # text_list_vec는 documents를 tfidf 벡터화한 벡터값(학습된 값)    
+    text_list_vec = TfidfVectorizer().fit(documents)
+# word_index는 각 단어의 고유 인덱스 값    
+    word_index=text_list_vec.vocabulary_
+
+    text_list_vec=text_list_vec.transform(documents).toarray()
+    word_index = {v: k for k, v in word_index.items()}
+    word_index = sorted(word_index.items(), key=operator.itemgetter(0))
+
+
+
+    
+    
+    
+# 기존자료에서 보고싶은 학과의 index(순서)를 n에 입력하면 해당하는 단어 중요도가 나옴
+def make_top100(n):   
+    index_of_major = n
+
+    result={}
+    for i in range(len(text_list_vec[index_of_major])):
+        if text_list_vec[index_of_major][i] != 0:
+            result[word_index[i][1]] =  text_list_vec[index_of_major][i]
+    result= sorted(result.items(), key=operator.itemgetter(1),reverse=True)
+    top100={}
+    for i in range(100):
+        top100[result[i][0]] = result[i][1]
+        
+    return top100
+
+
+
+#####################main############################
+# 현 코드에는 연습용데이터불러오는 코드임.  
+#실무에선 실제 저장된 학과관련 데이터와 연결하는 코드를 써야함.
+documents=pd.read_excel('example.xlsx')
+
+
+#########이부분은 데이터를 훈련시켜서 각 학과마다 tdidf 돌리는 부분, 시간이 가장 오래걸릴 코드#########
+x=preprocess(documents)
+x=trans_hangul(x)
+training_tfidf(x)
+
+
+###훈련 다된 데이터에서 원하는 것만 뽑아와서 순서매기고 출력###
+#받은 데이터에서 보고싶은 학과의 index입력(순서)
+wanted_index = 4   
+make_top100(wanted_index)
