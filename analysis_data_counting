@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+from pandas import DataFrame as df
+import re
+from tqdm import tqdm_notebook
+from tqdm.notebook import tqdm
+pd.set_option('display.min_rows', 50)
+import operator
+
+
+## 유사직무 내 영어는 제거, 한글만 남기기
+def extract2to1(data):
+    for i in tqdm(range(len(data))):
+        print(i,'시작')
+        temp=list(data['유사직무'][i].split('\",\"'))
+        if len(temp)%2 == 1 and ('Software Engineer' in temp):
+            temp.remove('Software Engineer')
+        if len(temp)%2 == 1 and ('Performance Marketing Manager' in temp):
+            temp.remove('Performance Marketing Manager')
+        if len(temp)%2 == 1 and ('Administrative Assistant' in temp):
+            temp.remove('Administrative Assistant')    
+        temp = temp[1::2]
+        x=0
+        while x<len(temp):
+            if x+1 == len(temp):
+                temp[x] = str('\"'+temp[x])
+            else:
+                temp[x] = str('\"'+temp[x]+'\"')
+            x+=1
+
+        data.loc[i,'유사직무'] = ',  '.join(temp)
+        print(temp)
+        print(i,'끝')
+        
+        return data
+    
+    
+    
+    
+    
+    
+## 직무 총 개수/중복제거 개수 뽑기
+def counting_job(data):
+    a=list(data['유사직무'])
+    duplicated=[]
+    for i in tqdm(range(len(data))):
+        duplicated.extend(strip_(data['유사직무'][i].split(',  ')))
+    print('기존 유사직무 총 개수(중복포함) :',len(duplicated))
+    not_duplicated=set(duplicated)
+    print('기존 유사직무 개수(중복제거) :',len(not_duplicated))
+    not_duplicated = list(not_duplicated)
+    
+    return duplicated, not_duplicated
+
+
+
+
+
+
+##  직무별 데이터 개수
+def counting_data_per_job(data):    
+    sim_job={}
+    for i in range(len(not_duplicated)):
+        sim_job[not_duplicated[i]]=duplicated.count(not_duplicated[i])
+    dict_= sorted(sim_job.items(),key=operator.itemgetter(1), reverse=True)
+    return dict_
+
