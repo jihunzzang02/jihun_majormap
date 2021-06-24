@@ -1,0 +1,115 @@
+import pandas as pd
+import numpy as np
+from pandas import DataFrame as df
+import re
+from tqdm import tqdm_notebook
+from tqdm.notebook import tqdm
+pd.set_option('display.min_rows', 50)
+
+
+#데이터 불러오기
+data = pd.read_excel('wanted_crawling.xlsx')
+
+
+
+
+
+#결측값 확인
+def checking_null(data):
+    return data.isnull().sum()
+
+
+
+
+
+#불필요 행 제거 및 데이터 양 확인
+def del_null(data):
+    print('기존 데이터 개수는 ',len(data))
+    
+    
+    data=data.drop_duplicates()
+    print('중복제거 데이터 개수는 ',len(data))
+    
+    
+    data=data.dropna(subset=['직무','유사직무'])
+    data = data.reset_index(drop=True)
+    print('직무,유사직무 결측값제거 데이터 개수',len(data))
+    
+    
+    ## 이상한 에러값(길이10이하, \n만 있는 애들) 공백으로 만들기
+    for i in tqdm_notebook(range(len(data))):
+        if len(str(data['주요업무'][i])) < 10 and '\\n' in str(data['주요업무'][i]):       
+            data.loc[i,['주요업무']] = ''
+        if len(str(data['자격요건'][i])) < 10 and '\\n' in str(data['자격요건'][i]):
+            data.loc[i,['자격요건']] = ''
+        if len(str(data['우대사항'][i])) < 10 and '\\n' in str(data['우대사항'][i]):
+            data.loc[i,['우대사항']] = ''
+    data = data.reset_index(drop=True)
+    
+    
+    ## '주요업무', '자격요건', '우대사항' 전부 글자수 10미만인거 제거
+    idx = []
+    for i in tqdm_notebook(range(len(data))):
+        if len(str(data['주요업무'][i])) < 10 and len(str(data['자격요건'][i])) < 10 and len(str(data['우대사항'][i])) < 10:
+            idx.append(i)
+    data = data.drop(idx)
+    data = data.reset_index(drop=True)
+    print('완료된 데이터 개수',len(data))
+    return data
+    
+    
+    
+    
+    
+## 중국어,일본어 10개이상 포함된 애들 빼기    
+def del_chinese_japanese(data):
+    index=[]
+    for i in range(len(data)):
+        temp = str(data_['주요업무'][i]) + str(data['자격요건'][i]) + str(data['우대사항'][i])
+        x=re.findall(r'[\u4e00-\u9fff]+', temp)
+        y=re.findall(r'[\u3040-\u30FC]+', temp)
+        if len(list(set(x)))>10 or len(list(set(y)))>10:
+            index.append(i)
+
+    data = data.drop(index)
+    data = data.reset_index(drop=True)
+    print('중국어,일본어가 빠진 데이터 개수',len(data))
+    return data
+
+
+
+
+
+
+## 리스트 원소들 앞뒤 여백제거 함수
+def strip_(list):
+    temp=[]
+    for j in list:
+        if len(str(j)) > 1:
+            temp.append(j.strip())
+    return temp
+
+
+
+
+
+
+
+## 데이터 내 원소들 \t와 • 제거, 앞뒤 여백 제거
+def del_error(data):
+    for i in tqdm(range(len(data))):
+        try:
+            data.loc[i,'주요업무']='\\n'.join(strip_(data.loc[i,'주요업무'].replace('\\t','').replace('•','').split('\\n')))        
+        except:
+            print('주요업무',i) 
+            print(data.loc[i,'주요업무'])
+        try:
+            data.loc[i,'자격요건']='\\n'.join(strip_(data.loc[i,'자격요건'].replace('\\t','').replace('•','').split('\\n')))        
+        except:
+            print('자격요건',i)        
+            print(data.loc[i,'자격요건'])
+        try:
+            data.loc[i,'우대사항']='\\n'.join(strip_(data.loc[i,'우대사항'].replace('\\t','').replace('•','').split('\\n')))        
+        except:
+            print('우대사항',i)
+            print(data.loc[i,'우대사항'])
