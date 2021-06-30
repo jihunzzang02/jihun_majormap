@@ -1,0 +1,69 @@
+import urllib.request
+import urllib.parse
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+import requests
+
+import pandas as pd
+from tqdm.notebook import tqdm
+
+
+
+
+def select(list_):
+    temp=[]
+    for i in list_:
+        temp.append(i.get_text())
+    return temp
+    
+    
+    
+    
+    
+title_ = []
+sub_= []
+sector_= []
+career_= []
+edu_= []
+emp_type_= []
+place_= []
+
+
+for i in tqdm(range(1,500)):
+    url = 'https://www.saramin.co.kr/zf_user/jobs/list/domestic?page='+str(i)+'&loc_mcd=101000%2C102000%2C108000%2C106000%2C104000%2C103000%2C105000%2C107000%2C118000%2C109000%2C111000%2C110000%2C112000%2C113000%2C114000&search_optional_item=n&search_done=y&panel_count=y&isAjaxRequest=0&page_count=50&sort=RL&type=domestic&is_param=1&isSearchResultEmpty=1&isSectionHome=0&searchParamCount=1#searchTitle'
+    html = urllib.request.urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    list_body = soup.findAll('div',class_='list_item')
+    
+    
+    for j in range(len(list_body)):
+        
+        try:
+            ex1 = list_body[j]
+            title = ex1.find('div', class_="col company_nm").find('a', class_='str_tit').get('title')
+            sub = ex1.find('div', class_="col notification_info").find('div', class_='job_tit').find('a').get('title')
+            sector = select(ex1.find('div', class_="col notification_info").find('span',class_="job_sector").findAll('span'))
+            career = ex1.find('p', class_="career").get_text()
+            edu = ex1.find('p', class_="education").get_text()
+            emp_type = ex1.find('p', class_="employment_type").get_text()
+            place = ex1.find('p', class_="work_place").get_text()
+        
+        except:
+            pass
+        
+        
+        title_.append(title)
+        sub_.append(sub)
+        sector_.append(sector)
+        career_.append(career)
+        edu_.append(edu)
+        emp_type_.append(emp_type)
+        place_.append(place)
+
+
+
+
+
+
+result = pd.DataFrame({'title' : title_,'content':sub_, 'sector':sector_, 'career' : career_, 'education':edu_, 'emploment_type':emp_type_, 'place':place_})
+
