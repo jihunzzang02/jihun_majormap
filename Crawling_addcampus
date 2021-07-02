@@ -76,3 +76,18 @@ for i in tqdm(range(30000)):
         
     except:
         pass
+
+
+
+
+
+
+
+data = df(data = {'univ_name':univ_name,'grade4fac':grade4fac,
+                  'grade4cul':grade4cul,'grade4sur':grade4sur,
+                  'grade4tui':grade4tui,'grade4pro':grade4pro,
+                  'total_grade':total_grade,'recco_or_not':recco_or_not,
+                  'day':day,'good_rev':good_rev,
+                  'bad_rev':bad_rev,'want':want,
+                 'dev_ornot':dev_ornot,'writer':writer})
+
