@@ -1,0 +1,78 @@
+import urllib.request
+import urllib.parse
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+import requests
+from pandas import DataFrame as df
+import pandas as pd
+from tqdm.notebook import tqdm
+
+
+
+
+
+def rank(list_):
+    temp=[]
+    for i in list_:
+        temp.append(i.get_text())
+    return temp
+
+
+def clean(X):
+    X=X.replace('\n','').strip()
+    return X
+    
+    
+    
+    
+    
+    
+    univ_name = []
+grade4fac = []
+grade4cul = [] 
+grade4sur = []
+grade4tui = []
+grade4pro = []
+total_grade = []
+recco_or_not = []
+title = []
+day = []
+good_rev = []
+bad_rev = []
+want = []
+dev_ornot = []
+writer = []
+
+
+for i in tqdm(range(30000)):    
+    
+    try:
+        url = 'https://www.addcampus.com/campus/review/detail/'+str(i)
+        html = urllib.request.urlopen(url)
+        soup = BeautifulSoup(html, 'html.parser')        
+    except:
+        pass
+    
+    try:
+        univ_name.append(soup.find('p', class_='td-text-style campus_name').get_text())
+        grade4fac.append(rank(soup.findAll('span', class_='uni-rank_grade'))[0])
+        grade4cul.append(rank(soup.findAll('span', class_='uni-rank_grade'))[1])
+        grade4sur.append(rank(soup.findAll('span', class_='uni-rank_grade'))[2])
+        grade4tui.append(rank(soup.findAll('span', class_='uni-rank_grade'))[3])
+        grade4pro.append(rank(soup.findAll('span', class_='uni-rank_grade'))[4])
+        total_grade.append(soup.find('span',class_="good-uni_grade recommend-rank-mark-number").get_text())
+        try:
+            recco_or_not.append(soup.find('span',class_="recco").get_text())
+        except:
+            recco_or_not.append(soup.find('span',class_="not-recco").get_text())
+        day.append(soup.find('span',class_="date").get_text())
+        good_rev.append(clean(soup.find('div',class_="good-review" ).find('p').get_text()))
+        bad_rev.append(clean(soup.find('div',class_="good-review" ).find('p').get_text()))
+
+        a,b= etc(soup.findAll('div',class_="etc-review"))
+        want.append(clean(a))
+        dev_ornot.append((clean(b)))
+        writer.append(soup.find('p',class_="act-writer td-text-style").find('span').get_text())
+        
+    except:
+        pass
