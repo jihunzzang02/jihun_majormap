@@ -1,0 +1,99 @@
+import urllib.request
+import urllib.parse
+from bs4 import BeautifulSoup
+from urllib.request import urlopen
+import requests
+import re
+import pandas as pd
+from tqdm.notebook import tqdm
+from selenium import webdriver
+
+
+
+
+
+def cont(x):
+    options = webdriver.ChromeOptions()
+    options.add_argument("headless")
+    driver = webdriver.Chrome('/Users/JihunKim/Downloads/chromedriver_win32/chromedriver')
+    temp=' '
+    try:
+        driver.get(x)
+        soup = BeautifulSoup(driver.page_source, 'html5lib')
+        y='https://www.saramin.co.kr'+soup.find('div', class_="jv_cont jv_detail").find('iframe').get('src')
+        html = urllib.request.urlopen(y)
+        soup = BeautifulSoup(html, 'html.parser')
+        temp = soup.find('table', class_='cont_recruit_template').get_text()
+        driver.quit()
+        return temp
+    except:
+        try:
+            temp = soup.find('div', class_='user_content').get_text()
+            return temp
+        except:
+            return y
+            
+            
+            
+            
+            
+def select___(list_):
+    temp=[]
+    for i in list_:
+        temp.append(i.get_text())
+    return temp
+    
+    
+    
+    
+    
+title_ = []
+sub_= []
+sector_= []
+career_= []
+edu_= []
+emp_type_= []
+place_= []
+content_ = []
+
+for i in tqdm(range(1000)):
+    url = 'https://www.saramin.co.kr/zf_user/jobs/list/domestic?page='+str(i)+'&loc_mcd=101000%2C102000%2C108000%2C106000%2C104000%2C103000%2C105000%2C107000%2C118000%2C109000%2C111000%2C110000%2C112000%2C113000%2C114000&search_optional_item=n&search_done=y&panel_count=y&isAjaxRequest=0&page_count=50&sort=RL&type=domestic&is_param=1&isSearchResultEmpty=1&isSectionHome=0&searchParamCount=1#searchTitle'
+    html = urllib.request.urlopen(url)
+    soup = BeautifulSoup(html, 'html.parser')
+    list_body = soup.findAll('div',class_='list_item')
+    
+    for j in tqdm(range(len(list_body))):
+        
+        try:
+            ex1 = list_body[j]           
+            title = ex1.find('div', class_="col company_nm").find('a', class_='str_tit').get('title')
+            sub = ex1.find('div', class_="col notification_info").find('div', class_='job_tit').find('a').get('title')
+            sector = select___(ex1.find('div', class_="col notification_info").find('span',class_="job_sector").findAll('span'))
+            career = ex1.find('p', class_="career").get_text()
+            edu = ex1.find('p', class_="education").get_text()
+            emp_type = ex1.find('p', class_="employment_type").get_text()
+            place = ex1.find('p', class_="work_place").get_text()
+
+
+            x='https://www.saramin.co.kr/zf_user/jobs/relay/view?isMypage=no&rec_idx='+re.findall("\d+",ex1.find('div').find('label').get('for'))[0]+'&recommend_ids=eJxtz7sRQyEMRNFqnOu7K8UuhP67MIOfgcDh0dWIIQTKNBvZ%2BeI7JpvefzjiGZAuV%2F%2FxdK%2B8%2B8Onu1cbR0IXLaqJ2bEY1mKyOZfnZDC%2BTLaCm6ZEy6abIQ4DMK1NbUjHvpxUzevdArNOLc2rZhGem9CyPF80zEt1145VP%2BGAS%2Fw%3D&view_type=list&gz=1#seq=0'
+
+            content=cont(x)
+            print(content)
+    
+        except:
+            pass
+        
+        title_.append(title)
+        sub_.append(sub)
+        sector_.append(sector)
+        career_.append(career)
+        edu_.append(edu)
+        emp_type_.append(emp_type)
+        place_.append(place)
+        content_.append(content)
+
+
+
+
+saramin1 = pd.DataFrame({'title' : title_,'content':sub_, 'sector':sector_, 'career' : career_, 'education':edu_, 'emploment_type':emp_type_, 'place':place_,'text':content_})
+saramin1.to_excel('real_saramin1.xlsx')
