@@ -9,6 +9,7 @@ import operator
 
 
 
+
 ## 유사직무 내 영어는 제거, 한글만 남기기
 def extract2to1(data):
     for i in tqdm(range(len(data))):
