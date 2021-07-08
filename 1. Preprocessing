@@ -58,9 +58,8 @@ def del_null(data):
     return data
     
     
-    
-    
-    
+
+       
 ## 중국어,일본어 10개이상 포함된 애들 빼기    
 def del_chinese_japanese(data):
     index=[]
