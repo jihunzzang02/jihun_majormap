@@ -17,3 +17,4 @@ def rearrange(data):
 
     new_data=new_data.sort_values(by=['출연횟수','직무'],ascending = False)  
     return new_data
+
