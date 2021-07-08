@@ -1,0 +1,19 @@
+def rearrange(data):
+    new_data = pd.DataFrame(columns = ['직무','출연횟수','주요업무','자격요건','우대사항'])
+   
+    for i in tqdm(range(len(not_duplicated))):
+        temp1=[]
+        temp2=[]
+        temp3=[]
+        count = 0
+        for j in range(len(data)):
+            if not_duplicated[i] in data['유사직무'][j]:
+                count +=1
+                temp1.extend(str(data['주요업무'][j]).split('\\n'))
+                temp2.extend(str(data['자격요건'][j]).split('\\n'))
+                temp3.extend(str(data['우대사항'][j]).split('\\n'))
+
+        new_data=new_data.append({'직무' : not_duplicated[i],'출연횟수':count, '주요업무' : temp1, '자격요건' : temp2, '우대사항' : temp3} , ignore_index=True)
+
+    new_data=new_data.sort_values(by=['출연횟수','직무'],ascending = False)  
+    return new_data
