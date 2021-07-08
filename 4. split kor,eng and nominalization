@@ -1,0 +1,87 @@
+def merge(kor,eng,ans):
+    index_eng = 0
+    index_kor = 0
+    answer=[]        
+
+    if len(eng) == 0:
+        answer = kor
+
+    else:
+        while True:
+            a = kor[index_kor]
+            b = eng[index_eng]
+            
+            if ans.find(a) < ans.find(b):
+                answer.append(a)
+                ans = ans[ans.find(a)+len(a):]
+                index_kor += 1
+                
+            else:
+                answer.append(b)
+                ans = ans[ans.find(b)+len(b):]
+                index_eng += 1
+                
+            if index_eng == len(eng) or index_kor == len(kor):
+                
+                if index_kor != len(kor):
+                
+                    while index_kor != len(kor):                    
+                        answer.append(kor[index_kor])
+                        index_kor += 1
+
+                else:
+                    while index_eng != len(eng):
+                        answer.append(eng[index_eng])
+                        index_eng +=1
+                break
+
+    return ' '.join(answer)
+    
+    
+    
+    
+    
+    
+    
+def nominalization(data):
+
+    for i in range(len(data)):
+        if str(data['직무'][i])[0] == '\"':
+            data.loc[i,'직무'] = str(data['직무'][i])[1:]
+        if str(data['직무'][i])[-1] == '\"':
+            data.loc[i,'직무'] = str(data['직무'][i])[:-1]
+    
+    
+    data = data.drop(data.index[340],axis=0)
+    data = data.reset_index(drop=True)
+    
+    data = data.drop(data.index[349],axis=0)
+    data = data.reset_index(drop=True)
+    
+    
+    
+    hangul = re.compile('[^ㄱ-ㅣ가-힣]+')
+    english = re.compile('[^a-zA-Z]+')
+
+    for i in tqdm(range(len(data))): 
+        kor = Okt.nouns(hangul.sub(' ', str(data['주요업무'][i])))
+        eng = english.sub(' ', str(data['주요업무'][i])).lower().split()
+        ans =str(data['주요업무'][i]).lower()
+        data.loc[i,'주요업무'] = merge(kor,eng,ans)
+        
+
+        kor = Okt.nouns(hangul.sub(' ', str(data['자격요건'][i])))
+        eng = english.sub(' ', str(data['자격요건'][i])).lower().split()
+        ans =str(data['자격요건'][i]).lower()
+        data.loc[i,'자격요건'] = merge(kor,eng,ans)
+        
+
+        kor = Okt.nouns(hangul.sub(' ', str(data['우대사항'][i])))
+        eng = english.sub(' ', str(data['우대사항'][i])).lower().split()
+        ans =str(data['우대사항'][i]).lower()
+        data.loc[i,'우대사항'] = merge(kor,eng,ans)
+        
+        
+    return data
+
+    
