@@ -1,0 +1,88 @@
+def tf(t, d):
+    return d.count(t)
+
+
+def idf(t,docs):
+    df = 0
+    N = len(docs)
+    for doc in docs:
+        df += t in doc
+    return log(N/(df + 1))
+
+
+def tfidf(t, d,docs):
+    return tf(t,d)* idf(t,docs)
+
+
+
+def dtm(): 
+    result = []
+    for j in range(len(vocab)):
+        t = vocab[j]
+        result.append(idf(t))
+
+    idf_ = pd.DataFrame(result, index = vocab, columns = ["IDF"])
+    return idf_
+
+
+
+def final(docs):
+    N = len(docs)
+    vocab = list(set(w for doc in docs for w in doc.split())) 
+    vocab.sort()
+
+    result = []
+    for i in range(N):
+        result.append([])
+        d = docs[i]
+        for j in range(len(vocab)):
+            t = vocab[j]
+
+            result[-1].append(tfidf(t,d,docs))
+
+    tfidf_ = pd.DataFrame(result, columns = vocab)
+    return tfidf_    
+    
+    
+    
+    
+    
+def extract_keywords(data):
+    temp1=list(data['주요업무'])
+    temp2=list(data['자격요건'])
+    temp3=list(data['우대사항'])
+    
+    
+    
+    x= final(temp1)
+    x_=[]
+    for i in tqdm(range(len(temp1))):
+        if len(sorted(x.loc[i].items(),key = lambda item:item[1],reverse = True)) > 100:
+            temp= dict(sorted(x.loc[i].items(),key = lambda item:item[1],reverse = True)[:100]).keys()
+        else:
+            temp= dict(sorted(x.loc[i].items(),key = lambda item:item[1],reverse = True)).keys()
+        x_.append(str(list(temp))[1:-1])
+    data['TF_IDF기준 주요업무 상위100keywords'] = x_
+
+
+    y= final(temp2)
+    y_=[]
+    for i in tqdm(range(len(temp2))):
+        if len(sorted(y.loc[i].items(),key = lambda item:item[1],reverse = True)) > 100:
+            temp= dict(sorted(y.loc[i].items(),key = lambda item:item[1],reverse = True)[:100]).keys()
+        else:
+            temp= dict(sorted(y.loc[i].items(),key = lambda item:item[1],reverse = True)).keys()
+        y_.append(str(list(temp))[1:-1])
+    data['TF_IDF기준 자격요건 상위100keywords'] = y_
+    
+    
+    
+    z= final(temp3)
+    z_=[]
+    for i in tqdm(range(len(temp3))):
+        if len(sorted(z.loc[i].items(),key = lambda item:item[1],reverse = True)) > 100:
+            temp= dict(sorted(z.loc[i].items(),key = lambda item:item[1],reverse = True)[:100]).keys()
+        else:
+            temp= dict(sorted(z.loc[i].items(),key = lambda item:item[1],reverse = True)).keys()
+        z_.append(str(list(temp))[1:-1])
+    data['TF_IDF기준 우대사항 상위100keywords'] = z_
