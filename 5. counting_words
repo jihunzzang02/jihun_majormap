@@ -1,0 +1,49 @@
+def show_gragh_of_words(data,inx_num):
+    print(data['직무'][inx_num])
+    x = nltk.Text(data['주요업무'][inx_num].split())
+    plt.rcParams["figure.figsize"] = (20,10)
+    plt.rc('font',size = 20)
+    x.plot(50)
+    sorted(x.vocab().items(),key=operator.itemgetter(1), reverse=True)[:50]
+
+
+
+def counting_words(data):
+    data=data.sort_values(by=['출연횟수','직무'],ascending = False)
+    for i in range(len(data)):
+        data.loc[i,'주요업무'] = data['주요업무'][i].replace(' 및 ',' ').replace(' 등 ',' ').replace(' and ',' ').replace(' 위 ',' ').replace(' 를 ',' ').replace(' 것 ',' ').replace(' 수 ',' ').replace(' 로 ',' ')
+        data.loc[i,'자격요건'] = data['자격요건'][i].replace(' 및 ',' ').replace(' 등 ',' ').replace(' and ',' ').replace(' 위 ',' ').replace(' 를 ',' ').replace(' 것 ',' ').replace(' 수 ',' ').replace(' 로 ',' ')
+        data.loc[i,'우대사항'] = data['우대사항'][i].replace(' 및 ',' ').replace(' 등 ',' ').replace(' and ',' ').replace(' 위 ',' ').replace(' 를 ',' ').replace(' 것 ',' ').replace(' 수 ',' ').replace(' 로 ',' ')
+        
+        
+        
+        
+    key1=[]
+    key2=[]
+    key3=[]
+    for i in range(len(data)):
+
+        x = nltk.Text(data['주요업무'][i].split())
+        y = nltk.Text(data['자격요건'][i].split())
+        z = nltk.Text(data['우대사항'][i].split())
+
+        if len(sorted(dict(x.vocab()).items(),key=operator.itemgetter(1), reverse=True)) > 50:
+            key1.append(' '.join(list(dict(sorted(dict(x.vocab()).items(),key=operator.itemgetter(1), reverse=True)[:50]).keys())))
+        else:
+            key1.append(' '.join(list(dict(sorted(dict(x.vocab()).items(),key=operator.itemgetter(1), reverse=True)).keys())))
+
+        if len(sorted(dict(y.vocab()).items(),key=operator.itemgetter(1), reverse=True)) > 50:
+            key2.append(' '.join(list(dict(sorted(dict(y.vocab()).items(),key=operator.itemgetter(1), reverse=True)[:50]).keys())))
+        else:
+            key2.append(' '.join(list(dict(sorted(dict(y.vocab()).items(),key=operator.itemgetter(1), reverse=True)).keys())))
+
+        if len(sorted(dict(z.vocab()).items(),key=operator.itemgetter(1), reverse=True)) > 50:
+            key3.append(' '.join(list(dict(sorted(dict(z.vocab()).items(),key=operator.itemgetter(1), reverse=True)[:50]).keys())))
+        else:
+            key3.append(' '.join(list(dict(sorted(dict(z.vocab()).items(),key=operator.itemgetter(1), reverse=True)).keys())))
+            
+    data['상위50_주요업무키워드_단순count'] = key1
+    data['상위50_자격요건키워드_단순count'] = key2
+    data['상위50_우대사항키워드_단순count'] = key3
+    
+    return data
