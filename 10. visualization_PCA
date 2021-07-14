@@ -1,0 +1,15 @@
+def visualization(data,list_):
+    text_standard = StandardScaler().fit_transform(vector_lis)
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(text_standard)
+    
+    df = pd.DataFrame(data = principalComponents, columns = ['principal_component_1', 'principal_component_2'],index=data['직무'])
+    
+    
+    
+    plt.figure(figsize=(50, 50))
+    ax=sns.scatterplot(x='principal_component_1',y='principal_component_2',data=df) 
+    plt.title('시각화')
+
+    for i in range(len(df)):
+        ax.text(float(df['principal_component_1'][i]) - 0.5, float(df['principal_component_2'][i]) + 0.05, df.index[i])
