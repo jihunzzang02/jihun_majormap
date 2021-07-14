@@ -100,15 +100,12 @@ def del_error(data):
         try:
             data.loc[i,'주요업무']='\\n'.join(strip_(data.loc[i,'주요업무'].replace('\\t','').replace('•','').split('\\n')))        
         except:
-            print('주요업무',i) 
-            print(data.loc[i,'주요업무'])
+            pass
         try:
             data.loc[i,'자격요건']='\\n'.join(strip_(data.loc[i,'자격요건'].replace('\\t','').replace('•','').split('\\n')))        
         except:
-            print('자격요건',i)        
-            print(data.loc[i,'자격요건'])
+            pass
         try:
             data.loc[i,'우대사항']='\\n'.join(strip_(data.loc[i,'우대사항'].replace('\\t','').replace('•','').split('\\n')))        
         except:
-            print('우대사항',i)
-            print(data.loc[i,'우대사항'])
+            pass
