@@ -1,0 +1,40 @@
+def Doc2vec_embeddnig(data):
+    temp = data['주요업무'] + data['자격요건'] + data['우대사항']
+    tagged_text = [TaggedDocument(words=word_tokenize(d.lower()), tags=[str(i)]) for i,d in enumerate(temp)]
+    
+    
+    max_epochs = 100
+    vec_size = 16
+    alpha = 0.025
+
+    model = Doc2Vec(size=vec_size,
+                    alpha=alpha, 
+                    min_alpha=0.00025,
+                    min_count=5,
+                    dm =1)
+
+    model.build_vocab(tagged_text)
+
+    for epoch in range(max_epochs):
+        print('iteration {0}'.format(epoch))
+        model.train(tagged_text,
+                    total_examples=model.corpus_count,
+                    epochs=model.iter)
+        # decrease the learning rate
+        model.alpha -= 0.0002
+        # fix the learning rate, no decay
+        model.min_alpha = model.alpha
+
+    model.save("d2v.model")
+    print("Model Saved")
+
+
+
+    model= Doc2Vec.load("d2v.model")
+
+    vector_lis = []
+    for i in range(len(temp)):
+        v=model.infer_vector(word_tokenize(temp[i].lower()))
+        vector_lis.append(v)
+        
+    return vector_lis
