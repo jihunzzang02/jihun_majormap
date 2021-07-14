@@ -1,0 +1,45 @@
+def about_carrer(data):
+    for i in range(len(data)):
+        if str(data['직무'][i])[0] == '\"':
+            data.loc[i,'직무'] = str(data['직무'][i])[1:]
+        if str(data['직무'][i])[-1] == '\"':
+            data.loc[i,'직무'] = str(data['직무'][i])[:-1]
+
+    data = data.drop(data.index[340],axis=0)
+    data = data.reset_index(drop=True)
+    data = data.drop(data.index[349],axis=0)
+    data = data.reset_index(drop=True)
+
+    data=data.sort_values(by=['출연횟수','직무'],ascending = False)
+    data = data.reset_index(drop=True)
+    
+    
+    
+    career = []
+    career_count=[]
+    mean = []
+    for i in range(len(data)):    
+        temp = []
+        text = ' '.join(data['자격요건'][i])
+        num = re.findall('\d+',text)
+        try:
+            if text[text.find(j) + len(str(j))] == '년' and text[text.find(j) + len(str(j)):text.find(j) + len(str(j))+2] != '년제' and int(j)<30: 
+                text = text[text.find(j) + len(str(j))+1:]
+                temp.append(j)
+        except:
+            pass
+        if len(temp) == 0:
+            career.append('nan')
+            career_count.append(int(0))
+        else:
+            career.append(round(sum(map(int,temp))/len(temp),2))
+            career_count.append(len(temp))
+
+
+    career_count_ = []
+    for i in range(len(career_count)):
+        if int(career_count[i]) / int(data['출연횟수'][i]) * 100 > 100:
+            career_count_.append('100%') 
+        else:
+            career_count_.append(str(int(career_count[i]) / int(data['출연횟수'][i]) * 100) +'%')
+    return career,career_count_
