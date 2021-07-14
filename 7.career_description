@@ -22,12 +22,13 @@ def about_carrer(data):
         temp = []
         text = ' '.join(data['자격요건'][i])
         num = re.findall('\d+',text)
-        try:
-            if text[text.find(j) + len(str(j))] == '년' and text[text.find(j) + len(str(j)):text.find(j) + len(str(j))+2] != '년제' and int(j)<30: 
-                text = text[text.find(j) + len(str(j))+1:]
-                temp.append(j)
-        except:
-            pass
+        for j in num:
+            try:
+                if text[text.find(j) + len(str(j))] == '년' and text[text.find(j) + len(str(j)):text.find(j) + len(str(j))+2] != '년제' and int(j)<30: 
+                    text = text[text.find(j) + len(str(j))+1:]
+                    temp.append(j)
+            except:
+                pass
         if len(temp) == 0:
             career.append('nan')
             career_count.append(int(0))
